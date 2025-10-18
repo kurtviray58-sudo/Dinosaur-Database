@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aquatic Dinosaurs | DinoBase</title>
+  <link rel="icon" href="https://imgs.search.brave.com/CYIFgN5CeKUtN0p9jlpKkO9ymhynCLL3xnlZNpmvZbU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9kaW5vc2F1/ci1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTg0NTgxNS5wbmc_/Zj13ZWJwJnc9MTI4" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b1d37;
+      --accent: #50b8b4;
+      --light: #f4f6f8;
+      --white: #ffffff;
+      --text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #111111;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    .sidebar h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--accent);
+      animation: glowText 2s infinite alternate;
+    }
+    .nav-links { display: flex; flex-direction: column; gap: 14px; }
+    .nav-links a {
+      color: #e5e7eb;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--accent); transform: translateX(5px); }
+    .sidebar footer { font-size: 0.85rem; color: #9ca3af; text-align: center; padding-top: 20px; }
+
+    /* MAIN */
+    main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* HERO */
+    .hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      height: 60vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+      animation: zoomBackground 20s ease-in-out infinite alternate;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 29, 55, 0.7);
+      backdrop-filter: blur(3px);
+    }
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInHero 1s forwards 0.3s;
+    }
+    .hero-content h2 { font-size: 3rem; margin-bottom: 10px; color: var(--accent); }
+    .hero-content p { font-size: 1.1rem; color: #d1d5db; }
+
+    /* CATEGORIES */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 60px 100px;
+      justify-items: center;
+    }
+    .dino-card {
+      width: 100%;
+      max-width: 320px;
+      background-color: #1f1f1f;
+      color: #f4f4f4;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+    .dino-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.6s ease;
+      filter: brightness(0.9);
+    }
+    .dino-card:hover { transform: scale(1.05) rotateX(2deg) rotateY(2deg); box-shadow: 0 15px 25px rgba(0,0,0,0.5); }
+    .dino-card:hover img { transform: scale(1.1); filter: brightness(1); }
+    .dino-card h4 { font-size: 1.3rem; color: #ffffff; margin: 15px 20px 10px; }
+    .dino-card p { color: #d1d1d1; font-size: 0.95rem; margin: 0 20px 10px; }
+    .fun-fact {
+      font-style: italic;
+      margin-top: auto;
+      background: rgba(42, 157, 143, 0.1);
+      padding: 10px 15px;
+      border-radius: 12px;
+      border-left: 4px solid #191779;
+      color: #191779;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+    .dino-card:hover .fun-fact { opacity: 1; transform: translateY(0); }
+
+    /* FACTS */
+    .facts {
+      background-color: #1f1f1f;
+      padding: 60px 20px;
+      text-align: center;
+      margin: 40px;
+      border-radius: 15px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.7s;
+    }
+    .facts h3 { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
+    .facts-list { max-width: 600px; margin: 0 auto; list-style: none; text-align: left; }
+    .facts-list li {
+      margin: 12px 0;
+      background-color: #2a2a2a;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #d1d1d1;
+      transition: transform 0.4s, background-color 0.3s, color 0.3s;
+    }
+    .facts-list li:hover { background-color: var(--accent); color: white; transform: translateX(6px) scale(1.05); }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInHero { to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoomBackground { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes glowText { 0% { text-shadow: 0 0 5px var(--accent); } 100% { text-shadow: 0 0 20px var(--accent); } }
+
+    /* ✅ MOBILE FIX */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+      }
+      .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .nav-links a { padding: 8px 12px; font-size: 0.9rem; }
+      main { margin-left: 0; }
+      .hero { height: 45vh; }
+      .hero-content h2 { font-size: 2rem; }
+      .hero-content p { font-size: 0.95rem; }
+      .categories { padding: 40px 20px; grid-template-columns: 1fr; }
+      .facts { margin: 20px; padding: 40px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <h1>🦖 DinoBase</h1>
+      <div class="nav-links">
+        <a href="index.html">🏠 Home</a>
+        <a href="food-chain.html">🍃 Food Chain</a>
+        <a href="Populardino.html">🔥 Popular Dinosaurs</a>
+        <a href="#facts">📘 Facts</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h2>🌊 Aquatic Dinosaurs</h2>
+        <p>From the oceans to rivers, these marine reptiles ruled the prehistoric waters with unmatched hunting skills.</p>
+      </div>
+    </section>
+
+    <section class="categories">
+      <div class="dino-card" data-sound="Mosasaurus.MP3">
+        <img src="https://imgs.search.brave.com/S9tDAqjPbqPVdJDmV9bA1i6MdSGiPI2RVTEEzubi6dg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1waG90/by9jbG9zZXVwLW1v/c2FzYXVydXMtbmF0/dXJhbC1saWdodC1n/ZW5lcmF0aXZlLWFp/XzgwNTM4LTIwNTku/anBnP3NlbXQ9YWlz/X2h5YnJpZCZ3PTc0/MA" alt="Mosasaurus">
+        <h4>Mosasaurus</h4>
+        <p>Giant marine lizard reaching up to 18 meters, top predator of the Cretaceous oceans.</p>
+        <p class="fun-fact">🦴 Fun Fact: Could swallow prey as large as sharks whole!</p>
+        <audio class="hidden-audio"><source src="Mosasaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Plesiosaurus.mp3">
+        <img src="https://imgs.search.brave.com/OJ8kYFwhst_pmtrEyk2zysq2vhRl_6seO308f3T3oZg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMjE4/ODE5NDA5MS9wbC96/ZGolQzQlOTljaWUv/cGxlc2lvc2F1cnVz/LW9uLXRoZS1odW50/LmpwZz9iPTEmcz02/MTJ4NjEyJnc9MCZr/PTIwJmM9NkxrSnZ3/SlBXNDVRakNMd29n/SHBRNWFadVh4ZDBi/dUZnV2x1NUxMczZz/dz0" alt="Plesiosaurus">
+        <h4>Plesiosaurus</h4>
+        <p>Long-necked marine reptile known for hunting fish in shallow seas.</p>
+        <p class="fun-fact">🦴 Fun Fact: Could catch fish quickly with its long neck!</p>
+        <audio class="hidden-audio"><source src="Plesiosaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Ichthyosaurus.mp3">
+        <img src="https://imgs.search.brave.com/7ji8ENlpRfpd13ZBjhXzRfzWHgFQH9txJa8L8C5GQxI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/em1lc2NpZW5jZS5j/b20vd3AtY29udGVu/dC91cGxvYWRzLzIw/MjQvMDMvanctMTAy/NHg1NzYuanBn" alt="Ichthyosaurus">
+        <h4>Ichthyosaurus</h4>
+        <p>Dolphin-like reptile, swift swimmer, fed on fish and squid.</p>
+        <p class="fun-fact">🦴 Fun Fact: Gave live birth underwater!</p>
+        <audio class="hidden-audio"><source src="Ichthyosaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Tylosaurus.mp3">
+        <img src="https://imgs.search.brave.com/ccfGE3qVQwAVkboKHkhZc7KlmOLN1bo4DwsbxI4Pt_Q/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93aWtp/YW5pbWFscy5ldS9h/cGkvaW1nLzcxZDE1/NzVhNjNhNDhhODg2/NzU0ZGExNGM4NjJl/ODBiLzYwMC82MDA" alt="Tylosaurus">
+        <h4>Tylosaurus</h4>
+        <p>Large mosasaur reaching 14 meters, apex predator in Late Cretaceous seas.</p>
+        <p class="fun-fact">🦴 Fun Fact: Known to attack even other large marine reptiles!</p>
+        <audio class="hidden-audio"><source src="Tylosaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Liopleurodon.mp3">
+        <img src="https://imgs.search.brave.com/cpwYfmW959ecv0NytEOeJAUqrS8NyaooeuxRerR0SlU/rs:fit:860:0:0:0/g:ce/aHR0cDovL2ltYWdl/cy5kaW5vc2F1cnBp/Y3R1cmVzLm9yZy92/bzU3Mzg3LDEyNTYx/Mzc4MjksbGlvcGxl/dXJvZG9uJTIwZmVy/b3hfYzZiNy5qcGc" alt="Liopleurodon">
+        <h4>Liopleurodon</h4>
+        <p>Enormous pliosaur, 6–7 meters long, with massive jaws for catching prey.</p>
+        <p class="fun-fact">🦴 Fun Fact: Could crush bones with its powerful bite!</p>
+        <audio class="hidden-audio"><source src="Liopleurodon.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Kronosaurus.mp3">
+        <img src="https://imgs.search.brave.com/YzFmkbJUfaMDo9VlG0k3cL2fJgt-5vL5tPVNim321YQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy85/Lzk3L0tyb25vc2F1/cnVzMl9OVC5qcGc" alt="Kronosaurus">
+        <h4>Kronosaurus</h4>
+        <p>Short-necked pliosaur, about 10 meters, fast and agile predator.</p>
+        <p class="fun-fact">🦴 Fun Fact: Specialized in hunting large fish and cephalopods!</p>
+        <audio class="hidden-audio"><source src="Kronosaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Styxosaurus.mp3">
+        <img src="https://imgs.search.brave.com/ef7CcgqsyQhhpuCYxF6pYkf4beI1w75KgN4A61hDaW8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hbmlt/YWxrby5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMjUvMDUv/MTUtQXN0b25pc2hp/bmctRmFjdHMtQWJv/dXQtU3R5eG9zYXVy/dXMtJUUyJTgwJTkz/LVRoZS1TZWFzLU15/c3RlcmlvdXMtR2lh/bnQuanBn" alt="Styxosaurus">
+        <h4>Styxosaurus</h4>
+        <p>Long-necked plesiosaur, around 11 meters, hunted in coastal waters.</p>
+        <p class="fun-fact">🦴 Fun Fact: Likely hunted in groups for bigger prey!</p>
+        <audio class="hidden-audio"><source src="Styxosaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Shonisaurus.mp3">
+        <img src="https://imgs.search.brave.com/g8xVRJ6sOktcmDNA56NWXeHkzzE9sAISPBgZPQPAOEI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9ldGls/bHVtaW5hcmUud29y/ZHByZXNzLmNvbS93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyMS8w/NS8xNDkxX3Nob25p/c2F1cnVzX2Rhbmll/bGVfcmlvc19ib2xl/ZWlyby5qcGc_dz0x/NTY4" alt="Shonisaurus">
+        <h4>Shonisaurus</h4>
+        <p>One of the largest ichthyosaurs, reaching up to 21 meters long.</p>
+        <p class="fun-fact">🦴 Fun Fact: Swam in schools to hunt squid efficiently!</p>
+        <audio class="hidden-audio"><source src="Shonisaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Elasmosaurus.mp3">
+        <img src="https://imgs.search.brave.com/92tPCx8zBHuN2-9yavy0-J5Biv69-SW0BCDQ94BZ_-Y/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMv/YXJ0d29ya2ltYWdl/cy9tZWRpdW1sYXJn/ZS8yL2VsYXNtb3Nh/dXJ1cy0uanBn" alt="Elasmosaurus">
+        <h4>Elasmosaurus</h4>
+        <p>Long-necked plesiosaur, up to 14 meters, mostly ate fish and small marine reptiles.</p>
+        <p class="fun-fact">🦴 Fun Fact: Neck made up nearly half its total body length!</p>
+        <audio class="hidden-audio"><source src="Elasmosaurus.mp3" type="audio/mpeg"></audio>
+      </div>
+
+      <div class="dino-card" data-sound="Platecarpus.mp3">
+        <img src="https://imgs.search.brave.com/cxQn2Ci3VgXMSRyYgGI1aQ2TXdqR4CkTIKlr3YmsZWc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMtd2l4bXAtZWQz/MGE4NmI4YzRjYTg4/Nzc3MzU5NGMyLndp/eG1wLmNvbS9mLzAx/ZmI4NzhmLTA3Y2Yt/NGM2MC1iY2QwLTg4/NzNhMzViNGI0ZC9k/ZmloOWIwLTU2MzJi/OTcwLTE2ZjAtNDgz/NS1iN2YzLTY4MjFm/ZDJkMTk0Zi5qcGcv/djEvZmlsbC93XzQ5/NSxoXzM1MCxxXzcw/LHN0cnAvcGxhdGVj/YXJwdXNfYnlfc2F1/bGNvbnRpbGRlX2Rm/aWg5YjAtMzUwdC5q/cGc_dG9rZW49ZXlK/MGVYQWlPaUpLVjFR/aUxDSmhiR2NpT2lK/SVV6STFOaUo5LmV5/SnpkV0lpT2lKMWNt/NDZZWEJ3T2pkbE1H/UXhPRGc1T0RJeU5q/UXpOek5oTldZd1pE/UXhOV1ZoTUdReU5t/VXdJaXdpYVhOeklq/b2lkWEp1T21Gd2NE/bzNaVEJrTVRnNE9U/Z3lNalkwTXpjellU/Vm1NR1EwTVRWbFlU/QmtNalpsTUNJc0lt/OWlhaUk2VzF0N0lt/aGxhV2RvZENJNklq/dzlOVFkySWl3aWNH/RjBhQ0k2SWx3dlps/d3ZNREZtWWpnM09H/WXRNRGRqWmkwMFl6/WXdMV0pqWkRBdE9E/ZzNNMkV6TldJMFlq/UmtYQzlrWm1sb09X/SXdMVFUyTXpKaU9U/Y3dMVEUyWmpBdE5E/Z3pOUzFpTjJZekxU/WTRNakZtWkRKa01U/azBaaTVxY0djaUxD/SjNhV1IwYUNJNklq/dzlPREF3SW4xZFhT/d2lZWFZrSWpwYklu/VnlianB6WlhKMmFX/TmxPbWx0WVdkbExt/OXdaWEpoZEdsdmJu/TWlYWDAuY1o3RVdO/YzBMTTFJd3NicVN2/Q1N5cFFLSktXR3Bo/T1o5Q2Q0RFhkeTBj/bw" alt="Platecarpus">
+        <h4>Platecarpus</h4>
+        <p>Medium-sized mosasaur, swift swimmer, hunted fish in shallow seas.</p>
+        <p class="fun-fact">🦴 Fun Fact: Could reach speeds of over 15 km/h!</p>
+        <audio class="hidden-audio"><source src="Platecarpus.mp3" type="audio/mpeg"></audio>
+      </div>
+    </section>
+
+    <section id="facts" class="facts">
+      <h3>Did You Know?</h3>
+      <ul class="facts-list">
+        <li>🌊 Some marine reptiles gave live birth underwater instead of laying eggs.</li>
+        <li>🦈 Megalodon was the largest shark ever, dominating oceans millions of years ago.</li>
+        <li>🐟 Plesiosaurs and ichthyosaurs had streamlined bodies for speed and hunting.</li>
+        <li>🦕 Aquatic dinosaurs coexisted with land dinosaurs but ruled the seas independently.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    // Play audio on card click
+    const dinoCards = document.querySelectorAll('.dino-card');
+    dinoCards.forEach(card => {
+      const audio = card.querySelector('audio');
+      card.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

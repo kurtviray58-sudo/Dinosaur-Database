@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dinosaur Database | Extinct Wonders</title>
+  <link rel="icon" href="https://imgs.search.brave.com/CYIFgN5CeKUtN0p9jlpKkO9ymhynCLL3xnlZNpmvZbU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9kaW5vc2F1/ci1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTg0NTgxNS5wbmc_/Zj13ZWJwJnc9MTI4" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0b1d37;
+      --accent: #50b8b4;
+      --light: #1b1b1b;
+      --white: #ffffff;
+      --text: #e5e7eb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #111111;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    .sidebar h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--accent);
+      animation: glowText 2s infinite alternate;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .nav-links a {
+      color: #e5e7eb;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+      transform: translateX(5px);
+    }
+
+    .sidebar footer {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      text-align: center;
+      padding-top: 20px;
+    }
+
+    /* MAIN CONTENT */
+    main {
+      margin-left: 260px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* HERO SECTION */
+    .hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      height: 70vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+      animation: zoomBackground 20s ease-in-out infinite alternate;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 29, 55, 0.7);
+      backdrop-filter: blur(3px);
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInHero 1s forwards 0.3s;
+    }
+
+    .hero-content h2 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .hero-content p {
+      font-size: 1.1rem;
+      color: #d1d5db;
+    }
+
+    /* OVERVIEW */
+    .overview {
+      padding: 80px 60px;
+      background-color: #111111;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.5s;
+      color: var(--text);
+    }
+
+    .overview h3 {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .overview p {
+      max-width: 800px;
+      margin: 0 auto;
+      color: #d1d5db;
+      line-height: 1.8;
+    }
+
+    /* CATEGORIES */
+    .categories {
+      padding: 80px 40px;
+      background-color: #111111;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      background-color: #1b1b1b;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s forwards;
+      color: var(--text);
+    }
+
+    .card:nth-child(1) { animation-delay: 0.2s; }
+    .card:nth-child(2) { animation-delay: 0.4s; }
+    .card:nth-child(3) { animation-delay: 0.6s; }
+
+    .card:hover {
+      transform: scale(1.05) rotateX(2deg) rotateY(2deg);
+      box-shadow: 0 15px 25px rgba(0,0,0,0.7);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .card:hover img {
+      transform: scale(1.1);
+    }
+
+    .card-content {
+      padding: 20px;
+      flex-grow: 1;
+    }
+
+    .card-content h4 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      transition: color 0.3s;
+    }
+
+    .card-content p {
+      color: #d1d5db;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+
+    .card:hover .card-content h4,
+    .card:hover .card-content p {
+      color: var(--accent);
+    }
+
+    /* FACTS */
+    .facts {
+      background-color: #111111;
+      padding: 80px 20px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.7s;
+      color: var(--text);
+    }
+
+    .facts h3 {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 25px;
+    }
+
+    .facts-list {
+      max-width: 600px;
+      margin: 0 auto;
+      list-style: none;
+      text-align: left;
+    }
+
+    .facts-list li {
+      margin: 12px 0;
+      background-color: #1b1b1b;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #e5e7eb;
+      transition: transform 0.4s, background-color 0.3s, color 0.3s;
+    }
+
+    .facts-list li:hover {
+      background-color: var(--accent);
+      color: #111111;
+      transform: translateX(6px) scale(1.05);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInHero { to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoomBackground {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes glowText {
+      0% { text-shadow: 0 0 5px var(--accent); }
+      100% { text-shadow: 0 0 20px var(--accent); }
+    }
+
+    /* ✅ MOBILE FIXES */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+        gap: 10px;
+      }
+
+      .sidebar h1 {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+      }
+
+      .nav-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .nav-links a {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+
+      main {
+        margin-left: 0;
+      }
+
+      .hero {
+        height: 50vh;
+      }
+
+      .hero-content h2 {
+        font-size: 1.8rem;
+      }
+
+      .hero-content p {
+        font-size: 0.95rem;
+      }
+
+      .overview, .categories, .facts {
+        padding: 50px 20px;
+      }
+
+      .categories {
+        grid-template-columns: 1fr;
+      }
+
+      .card img {
+        height: 180px;
+      }
+
+      .facts-list {
+        padding: 0 10px;
+      }
+
+      .facts h3 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div>
+      <h1>🦖 DinoBase</h1>
+      <div class="nav-links">
+        <a href="#">🏠 Home</a>
+        <a href="food-chain.html">🍃 Food Chain</a>
+        <a href="Populardino.html">🔥 Popular Dinosaurs</a>
+        <a href="#facts">📘 Facts</a>
+      </div>
+    </div>
+    <footer>© 2025 DinoBase | by Group 6</footer>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h2>Explore Earth's Prehistoric Titans</h2>
+        <p>From the fierce T-Rex to the mighty Brachiosaurus — discover how these ancient creatures shaped our world.</p>
+      </div>
+    </section>
+
+    <section class="overview">
+      <h3>About the Dinosaur Age</h3>
+      <p>
+        Dinosaurs ruled the Earth for over 160 million years, evolving into countless species adapted to land, air, and sea.
+        Their fossils give us a glimpse into an era of immense biodiversity, strength, and adaptation that shaped the evolution of life as we know it.
+      </p>
+    </section>
+
+    <section class="categories">
+      <a href="carnivore.html" class="card">
+        <img src="Carnivore.png" alt="Carnivores">
+        <div class="card-content">
+          <h4>🍖 Carnivores</h4>
+          <p>Ferocious predators like Tyrannosaurus Rex ruled the prehistoric world with unmatched power and agility.</p>
+        </div>
+      </a>
+
+      <a href="herbivore.html" class="card">
+        <img src="Herbivore.png" alt="Herbivores">
+        <div class="card-content">
+          <h4>🌿 Herbivores</h4>
+          <p>Massive plant-eating species such as Triceratops and Brachiosaurus shaped ancient landscapes through grazing.</p>
+        </div>
+      </a>
+
+      <a href="omnivore.html" class="card">
+        <img src="omnivore.webp" alt="Omnivores">
+        <div class="card-content">
+          <h4>🍖🌿 Omnivores</h4>
+          <p>Adaptive species like Oviraptors thrived by consuming both meat and vegetation — a mark of survival brilliance.</p>
+        </div>
+      </a>
+
+      <a href="flyers.html" class="card">
+        <img src="Flyers.webp" alt="Flyers">
+        <div class="card-content">
+          <h4>🕊️ Flyers</h4>
+          <p>Pterosaurs and other flying dinosaurs dominated the prehistoric skies with impressive wingspans and hunting skills.</p>
+        </div>
+      </a>
+
+      <a href="aquatics.html" class="card">
+        <img src="https://imgs.search.brave.com/006U8XFrdwxiDfU8fARIuWSMJ3lY5A_4avwS25cVNUg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvNDg0/NjkwODY2L3Bob3Rv/L3BsZXNpb3NhdXIt/Y2hhc2luZy1maXNo/LmpwZz9zPTYxMng2/MTImdz0wJms9MjAm/Yz1NUWw2cUZhVXJo/aEdOWU55RTVLOURz/VkFGUXJuYjZmM2Z6/aks2R1R3OW13PQ" alt="Aquatics">
+        <div class="card-content">
+          <h4>🌊 Aquatics</h4>
+          <p>Mosasaurs, Plesiosaurs, and other water-adapted species thrived in prehistoric oceans and rivers.</p>
+        </div>
+      </a>
+    </section>
+
+    <section id="facts" class="facts">
+      <h3>Did You Know?</h3>
+      <ul class="facts-list">
+        <li>🦕 Some dinosaurs had feathers — linking them to modern birds.</li>
+        <li>🌍 Fossils show dinosaurs lived on all seven continents.</li>
+        <li>🦖 The T-Rex had a bite force greater than any living predator today.</li>
+        <li>💀 Paleontologists discover new dinosaur species every year.</li>
+        <li>☄️ The mass extinction 65 million years ago reshaped life on Earth.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

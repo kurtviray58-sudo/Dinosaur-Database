@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flying Dinosaurs | Dinosaur Database</title>
+  <link rel="icon" href="https://imgs.search.brave.com/CYIFgN5CeKUtN0p9jlpKkO9ymhynCLL3xnlZNpmvZbU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9kaW5vc2F1/ci1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTg0NTgxNS5wbmc_/Zj13ZWJwJnc9MTI4" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b1d37;
+      --accent: #50b8b4;
+      --light: #f4f6f8;
+      --white: #ffffff;
+      --text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #111111;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    .sidebar h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--accent);
+      animation: glowText 2s infinite alternate;
+    }
+    .nav-links { display: flex; flex-direction: column; gap: 14px; }
+    .nav-links a {
+      color: #e5e7eb;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--accent); transform: translateX(5px); }
+    .sidebar footer { font-size: 0.85rem; color: #9ca3af; text-align: center; padding-top: 20px; }
+
+    /* MAIN */
+    main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* HERO */
+    .hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      height: 60vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+      animation: zoomBackground 20s ease-in-out infinite alternate;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 29, 55, 0.7);
+      backdrop-filter: blur(3px);
+    }
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInHero 1s forwards 0.3s;
+    }
+    .hero-content h2 { font-size: 3rem; margin-bottom: 10px; color: var(--accent); }
+    .hero-content p { font-size: 1.1rem; color: #d1d5db; }
+
+    /* CATEGORIES */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 60px 100px;
+      justify-items: center;
+    }
+    .dino-card {
+      width: 100%;
+      max-width: 320px;
+      background-color: #1f1f1f;
+      color: #f4f4f4;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+    .dino-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.6s ease;
+      filter: brightness(0.9);
+    }
+    .dino-card:hover { transform: scale(1.05) rotateX(2deg) rotateY(2deg); box-shadow: 0 15px 25px rgba(0,0,0,0.5); }
+    .dino-card:hover img { transform: scale(1.1); filter: brightness(1); }
+    .dino-card h4 { font-size: 1.3rem; color: #ffffff; margin: 15px 20px 10px; }
+    .dino-card p { color: #d1d1d1; font-size: 0.95rem; margin: 0 20px 10px; }
+    .fun-fact {
+      font-style: italic;
+      margin-top: auto;
+      background: rgba(42, 157, 143, 0.1);
+      padding: 10px 15px;
+      border-radius: 12px;
+      border-left: 4px solid #191779;
+      color: #191779;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+    .dino-card:hover .fun-fact { opacity: 1; transform: translateY(0); }
+
+    /* FACTS */
+    .facts {
+      background-color: #1f1f1f;
+      padding: 60px 20px;
+      text-align: center;
+      margin: 40px;
+      border-radius: 15px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.7s;
+    }
+    .facts h3 { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
+    .facts-list { max-width: 600px; margin: 0 auto; list-style: none; text-align: left; }
+    .facts-list li {
+      margin: 12px 0;
+      background-color: #2a2a2a;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #d1d1d1;
+      transition: transform 0.4s, background-color 0.3s, color 0.3s;
+    }
+    .facts-list li:hover { background-color: var(--accent); color: white; transform: translateX(6px) scale(1.05); }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInHero { to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoomBackground { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes glowText { 0% { text-shadow: 0 0 5px var(--accent); } 100% { text-shadow: 0 0 20px var(--accent); } }
+
+    /* ✅ MOBILE FIXES */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+        gap: 10px;
+      }
+
+      .sidebar h1 {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+      }
+
+      .nav-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .nav-links a {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+
+      main {
+        margin-left: 0;
+      }
+
+      .hero {
+        height: 50vh;
+      }
+
+      .hero-content h2 {
+        font-size: 1.8rem;
+      }
+
+      .hero-content p {
+        font-size: 0.95rem;
+      }
+
+      .overview, .categories, .facts {
+        padding: 50px 20px;
+      }
+
+      .categories {
+        grid-template-columns: 1fr;
+      }
+
+      .card img {
+        height: 180px;
+      }
+
+      .facts-list {
+        padding: 0 10px;
+      }
+
+      .facts h3 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <h1>🦖 DinoBase</h1>
+      <div class="nav-links">
+        <a href="index.html">🏠 Home</a>
+        <a href="food-chain.html">🍃 Food Chain</a>
+        <a href="Populardino.html">🔥 Popular Dinosaurs</a>
+        <a href="#facts">📘 Facts</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h2>🦅 Flying Dinosaurs</h2>
+        <p>These prehistoric flyers soared the skies with impressive wingspans and unique adaptations.</p>
+      </div>
+    </section>
+
+    <section class="categories">
+
+  <div class="dino-card" data-sound="Pteranodon.MP3">
+    <img src="https://imgs.search.brave.com/OzE42eTiFgJysvPIiYqf1drD5Mwec5Mw52D68GDhLLY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAzLzY1Lzc1Lzc4/LzM2MF9GXzM2NTc1/Nzg3Nl9veWJVWkVw/QUVEUTBmQXkzbndo/WlZHNXZ4NnEwRUtw/cy5qcGc" alt="Pteranodon">
+    <h4>Pteranodon</h4>
+    <p>One of the largest flying reptiles, with a wingspan up to 7 meters.</p>
+    <p class="fun-fact">🦴 Fun Fact: Could fly at high speeds using strong wing muscles!</p>
+    <audio class="hidden-audio"><source src="Pteranodon.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Quetzalcoatlus.mp3">
+    <img src="https://imgs.search.brave.com/EwbbcFLqv7c66hqVONGQDWkbFF9YXfdOQIs38naRrbc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTQ0/Nzg4Njg5OS9waG90/by9wdGVyb3NhdXIt/cXVldHphbGNvYXRs/dXMtb3Zlci1hLW1v/dW50YWlub3VzLWxh/bmRzY2FwZS5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9eVRR/RlVBSmdnd2VZUU1m/UHJMT1RZWVFkTWl4/Ulc3VWhCNTNVb2VF/RnViOD0" alt="Quetzalcoatlus">
+    <h4>Quetzalcoatlus</h4>
+    <p>Massive pterosaur with wingspans up to 10–11 meters, one of the largest flying animals ever.</p>
+    <p class="fun-fact">🦴 Fun Fact: Could soar using thermal currents like modern birds of prey!</p>
+    <audio class="hidden-audio"><source src="Quetzalcoatlus.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Dimorphodon.mp3">
+    <img src="https://imgs.search.brave.com/rgs96A2wkq3VMBPkx9dEB42nF8iqHltnjhE69vKHmew/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnJl/ZGQuaXQvNWV2cjl6/cTZpNzU5MS5qcGc" alt="Dimorphodon">
+    <h4>Dimorphodon</h4>
+    <p>Small early pterosaur with strong teeth and a short wingspan around 1.5 meters.</p>
+    <p class="fun-fact">🦴 Fun Fact: Likely hunted insects and small vertebrates!</p>
+    <audio class="hidden-audio"><source src="Dimorphodon.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Rhamphorhynchus.mp3">
+    <img src="https://imgs.search.brave.com/61fDG0RSR5K36Oryb3TLBilGlW4DvDSuOMkhQSay62c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLmV0/c3lzdGF0aWMuY29t/LzkxNTcwMjAvci9p/bC9lY2ZkYzkvMzIy/MjYzNDE4NC9pbF83/OTR4Ti4zMjIyNjM0/MTg0X21yNjIuanBn" alt="Rhamphorhynchus">
+    <h4>Rhamphorhynchus</h4>
+    <p>Long-tailed pterosaur, with sharp teeth and a wingspan up to 2.5 meters.</p>
+    <p class="fun-fact">🦴 Fun Fact: Likely fished from rivers and coastal waters!</p>
+    <audio class="hidden-audio"><source src="Rhamphorhynchus.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Pterodaustro.mp3">
+    <img src="https://imgs.search.brave.com/2UuXV7WT--0Mutg2dFEbyBwfkADx4yoow5WLymo2SqY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9wbTEu/YW1pbm9hcHBzLmNv/bS82NzIxLzcxZDQ2/NDc5NmQ1OTU0YTI5/NGU2MjhhMDExZWZi/ZDI1ZmFjMTkxNjdf/aHEuanBn" alt="Pterodaustro">
+    <h4>Pterodaustro</h4>
+    <p>Filter-feeding pterosaur with hundreds of bristle-like teeth for catching small aquatic prey.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its teeth acted like a modern flamingo’s for filtering food!</p>
+    <audio class="hidden-audio"><source src="Pterodaustro.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Nyctosaurus.mp3">
+    <img src="https://imgs.search.brave.com/AoHBKYLyham7RaKJyx7C30VKqyEI942VHd9xyc5_2TE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9uZXdk/aW5vc2F1cnMuY29t/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDE2/LzExLzE1MjVfbnlj/dG9zYXVydXNfdGlt/X2RlY2V1bmluY2su/anBn" alt="Nyctosaurus">
+    <h4>Nyctosaurus</h4>
+    <p>Small pterosaur with long wings, specialized for soaring over oceans.</p>
+    <p class="fun-fact">🦴 Fun Fact: Known for its distinctive head crest used in mating displays!</p>
+    <audio class="hidden-audio"><source src="Nyctosaurus.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Dsungaripterus.mp3">
+    <img src="https://imgs.search.brave.com/XDZqtDcZax9HjooH2bC99r8bz1zhL2yloqsYHCc_qd4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9uZXdk/aW5vc2F1cnMuY29t/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDE2/LzExLzE1NDFfZHN1/bmdhcmlwdGVydXNf/cGV0ZXJfbW9udGdv/bWVyeS5qcGc" alt="Dsungaripterus">
+    <h4>Dsungaripterus</h4>
+    <p>Robust pterosaur with a beak for crushing shellfish and small prey.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its strong jaws helped it feed on hard-shelled animals!</p>
+    <audio class="hidden-audio"><source src="Dsungaripterus.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Tapejara.mp3">
+    <img src="https://imgs.search.brave.com/30tSTJHZc67E8jFLXGvXCPOlQe-ALLm6b41ot4M0eW4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9sZW9l/eHRpbmN0LmNvbS93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyNS8w/My9UYXBlamFyYS0x/MDI0eDU3Ni5qcGc" alt="Tapejara">
+    <h4>Tapejara</h4>
+    <p>Known for its large head crest, used for display and aerodynamics in flight.</p>
+    <p class="fun-fact">🦴 Fun Fact: Crest may have also helped in controlling flight stability!</p>
+    <audio class="hidden-audio"><source src="Tapejara.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Ornithocheirus.mp3">
+    <img src="https://imgs.search.brave.com/KQxX5-EDKx7oLEymqlGEdReaZoXFDZqUMe9ZqNoSWzM/rs:fit:860:0:0:0/g:ce/aHR0cDovL2ltYWdl/cy5kaW5vc2F1cnBp/Y3R1cmVzLm9yZy90/cm9wZW9nbmF0aHVz/X2I4ZjMuanBn" alt="Ornithocheirus">
+    <h4>Ornithocheirus</h4>
+    <p>Coastal hunter with wingspan up to 5 meters, catching fish from oceans and rivers.</p>
+    <p class="fun-fact">🦴 Fun Fact: Often hunted in groups for better success!</p>
+    <audio class="hidden-audio"><source src="Ornithocheirus.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Anhanguera.mp3">
+    <img src="https://imgs.search.brave.com/iuSYd-txST0106tTzMlp0x1QVs9FQx-K0SyD9WMSw6M/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAwLzgyLzQ4LzYy/LzM2MF9GXzgyNDg2/Mjc1X2tXWUJqdzg4/U25aV0RncFllNEhB/NUdFU3lTY0VRaHgw/LmpwZw" alt="Anhanguera">
+    <h4>Anhanguera</h4>
+    <p>Large pterosaur with a wingspan around 4–5 meters and a long, pointed snout.</p>
+    <p class="fun-fact">🦴 Fun Fact: Likely skilled at gliding over water for long distances!</p>
+    <audio class="hidden-audio"><source src="Anhanguera.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Criorhynchus.mp3">
+    <img src="https://imgs.search.brave.com/mpr9Cr4F-t8VyFbIT3Ce6US6wuXCYprQAzviJQb80qg/rs:fit:860:0:0:0/g:ce/aHR0cDovL2ltYWdl/cy5kaW5vc2F1cnBp/Y3R1cmVzLm9yZy9D/cmlvcmh5bmNodXMy/XzAzZjYuanBn" alt="Criorhynchus">
+    <h4>Criorhynchus</h4>
+    <p>Medium-sized pterosaur adapted for coastal fishing and flight over water.</p>
+    <p class="fun-fact">🦴 Fun Fact: Used its long snout to catch fish efficiently!</p>
+    <audio class="hidden-audio"><source src="Criorhynchus.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Coloborhynchus.mp3">
+    <img src="https://imgs.search.brave.com/meSDtzMpP9UzsSkKpaug91EeJBnCdZ09ltQyXIF8QzM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/c2hvcGlmeS5jb20v/cy9maWxlcy8xLzEy/NTAvMDQ0MS9maWxl/cy9QdGVyb3NhdXI1/NTI1XzQ4MHg0ODAu/anBnP3Y9MTU4ODA1/MjM1Mw" alt="Coloborhynchus">
+    <h4>Coloborhynchus</h4>
+    <p>Pterosaur with a distinct crest and sharp teeth, likely fish-eating predator.</p>
+    <p class="fun-fact">🦴 Fun Fact: Crest may have helped in flight stability and mating displays!</p>
+    <audio class="hidden-audio"><source src="Coloborhynchus.mp3" type="audio/mpeg"></audio>
+  </div>
+</section>
+
+    </section>
+
+    <section id="facts" class="facts">
+      <h3>Did You Know?</h3>
+      <ul class="facts-list">
+        <li>🦅 Some pterosaurs were as large as small planes, with wingspans over 10 meters.</li>
+        <li>🌊 Many flyers hunted fish and lived near rivers or coasts.</li>
+        <li>⏳ Flying reptiles evolved independently from birds and dinosaurs.</li>
+        <li>🦖 Fossils show they had hollow bones to reduce weight for flight.</li>
+      </ul>
+    </section>
+
+    <script>
+      const dinoCards = document.querySelectorAll('.dino-card');
+      let currentAudio = null;
+
+      dinoCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const soundSrc = card.getAttribute('data-sound');
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+          }
+          currentAudio = new Audio(soundSrc);
+          currentAudio.play();
+        });
+      });
+
+      const factsSection = document.querySelector('.facts');
+      function revealFacts() {
+        const sectionTop = factsSection.getBoundingClientRect().top;
+        const triggerPoint = window.innerHeight - 100;
+        if (sectionTop < triggerPoint) factsSection.classList.add('visible');
+      }
+
+      window.addEventListener('scroll', revealFacts);
+      window.addEventListener('load', revealFacts);
+    </script>
+  </main>
+</body>
+</html>

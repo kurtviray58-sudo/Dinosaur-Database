@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Herbivorous Dinosaurs | Dinosaur Database</title>
+  <link rel="icon" href="https://imgs.search.brave.com/CYIFgN5CeKUtN0p9jlpKkO9ymhynCLL3xnlZNpmvZbU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9kaW5vc2F1/ci1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTg0NTgxNS5wbmc_/Zj13ZWJwJnc9MTI4" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0b1d37;
+      --accent: #50b8b4;
+      --light: #f4f6f8;
+      --white: #ffffff;
+      --text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #111111;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    .sidebar h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--accent);
+      animation: glowText 2s infinite alternate;
+    }
+    .nav-links { display: flex; flex-direction: column; gap: 14px; }
+    .nav-links a {
+      color: #e5e7eb;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--accent); transform: translateX(5px); }
+    .sidebar footer { font-size: 0.85rem; color: #9ca3af; text-align: center; padding-top: 20px; }
+
+    /* MAIN */
+    main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* HERO */
+    .hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      height: 60vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+      animation: zoomBackground 20s ease-in-out infinite alternate;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 29, 55, 0.7);
+      backdrop-filter: blur(3px);
+    }
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInHero 1s forwards 0.3s;
+    }
+    .hero-content h2 { font-size: 3rem; margin-bottom: 10px; color: var(--accent); }
+    .hero-content p { font-size: 1.1rem; color: #d1d5db; }
+
+    /* CATEGORIES */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 60px 100px;
+      justify-items: center;
+    }
+    .dino-card {
+      width: 100%;
+      max-width: 320px;
+      background-color: #1f1f1f;
+      color: #f4f4f4;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+    .dino-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.6s ease;
+      filter: brightness(0.9);
+    }
+    .dino-card:hover { transform: scale(1.05) rotateX(2deg) rotateY(2deg); box-shadow: 0 15px 25px rgba(0,0,0,0.5); }
+    .dino-card:hover img { transform: scale(1.1); filter: brightness(1); }
+    .dino-card h4 { font-size: 1.3rem; color: #ffffff; margin: 15px 20px 10px; }
+    .dino-card p { color: #d1d1d1; font-size: 0.95rem; margin: 0 20px 10px; }
+    .fun-fact {
+      font-style: italic;
+      margin-top: auto;
+      background: rgba(42, 157, 143, 0.1);
+      padding: 10px 15px;
+      border-radius: 12px;
+      border-left: 4px solid #191779;
+      color: #191779;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+    .dino-card:hover .fun-fact { opacity: 1; transform: translateY(0); }
+
+    /* FACTS */
+    .facts {
+      background-color: #1f1f1f;
+      padding: 60px 20px;
+      text-align: center;
+      margin: 40px;
+      border-radius: 15px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.7s;
+    }
+    .facts h3 { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
+    .facts-list { max-width: 600px; margin: 0 auto; list-style: none; text-align: left; }
+    .facts-list li {
+      margin: 12px 0;
+      background-color: #2a2a2a;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #d1d1d1;
+      transition: transform 0.4s, background-color 0.3s, color 0.3s;
+    }
+    .facts-list li:hover { background-color: var(--accent); color: white; transform: translateX(6px) scale(1.05); }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInHero { to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoomBackground { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes glowText { 0% { text-shadow: 0 0 5px var(--accent); } 100% { text-shadow: 0 0 20px var(--accent); } }
+
+    /* ✅ MOBILE FIX */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+      }
+      .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .nav-links a { padding: 8px 12px; font-size: 0.9rem; }
+      main { margin-left: 0; }
+      .hero { height: 45vh; }
+      .hero-content h2 { font-size: 2rem; }
+      .hero-content p { font-size: 0.95rem; }
+      .categories { padding: 40px 20px; grid-template-columns: 1fr; }
+      .facts { margin: 20px; padding: 40px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <h1>🦕 DinoBase</h1>
+      <div class="nav-links">
+        <a href="index.html">🏠 Home</a>
+        <a href="food-chain.html">🍃 Food Chain</a>
+        <a href="Populardino.html">🔥 Popular Dinosaurs</a>
+        <a href="#facts">📘 Facts</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h2>🦕 Herbivorous Dinosaurs</h2>
+        <p>Gentle giants that roamed the Earth eating plants. They had unique adaptations for survival, from long necks to armored bodies.</p>
+      </div>
+    </section>
+
+    <section class="categories">
+      <div class="dino-card green" data-sound="Brachiosaurus.mp3">
+        <img src="Brachiosaurus.webp" alt="Brachiosaurus">
+        <h4>Brachiosaurus</h4>
+        <p>A massive herbivore with a long neck, Brachiosaurus could reach tree tops to eat leaves. It weighed up to 56 tons and grew up to 25 meters long.</p>
+        <p class="fun-fact">🦴 Fun Fact: Brachiosaurus had longer front legs than hind legs, giving it a giraffe-like posture!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Triceratops.mp3">
+        <img src="Triceratops.jpg" alt="Triceratops">
+        <h4>Triceratops</h4>
+        <p>One of the most famous herbivorous dinosaurs, Triceratops had three horns and a large frill to protect itself from predators.</p>
+        <p class="fun-fact">🦴 Fun Fact: Triceratops could weigh up to 12 tons and had over 800 teeth for grinding plants!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Stegosaurus.mp3">
+        <img src="Stegosaurus.webp" alt="Stegosaurus">
+        <h4>Stegosaurus</h4>
+        <p>Stegosaurus had distinctive plates along its back and spikes on its tail. It was a slow-moving herbivore that fed on low-lying plants.</p>
+        <p class="fun-fact">🦴 Fun Fact: The plates on Stegosaurus’ back may have helped regulate body temperature!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Ankylosaurus.mp3">
+        <img src="Ankylosaurus.webp" alt="Ankylosaurus">
+        <h4>Ankylosaurus</h4>
+        <p>Ankylosaurus was heavily armored with bony plates and a club-like tail for defense. It was around 6-8 meters long and ate plants close to the ground.</p>
+        <p class="fun-fact">🦴 Fun Fact: Ankylosaurus’ tail club could break the bones of predators!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Diplodocus.mp3">
+        <img src="Diplodocus.jpg" alt="Diplodocus">
+        <h4>Diplodocus</h4>
+        <p>Diplodocus had an extremely long neck and tail, feeding on tree leaves and shrubs. It could grow over 30 meters long, making it one of the longest dinosaurs.</p>
+        <p class="fun-fact">🦴 Fun Fact: Diplodocus’ whip-like tail could be used as a defense mechanism!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Parasaurolophus.mp3">
+        <img src="Parasaurolophus.webp" alt="Parasaurolophus">
+        <h4>Parasaurolophus</h4>
+        <p>Known for its long, curved cranial crest, Parasaurolophus may have used it to produce sounds for communication.</p>
+        <p class="fun-fact">🦴 Fun Fact: Its crest acted like a built-in horn for communication!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Iguanodon.MP3">
+        <img src="Iguanodon.jpg" alt="Iguanodon">
+        <h4>Iguanodon</h4>
+        <p>Iguanodon was a large herbivore with a distinctive thumb spike, possibly used for defense. It walked on both two and four legs.</p>
+        <p class="fun-fact">🦴 Fun Fact: The thumb spike was a unique feature among herbivorous dinosaurs!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Edmontosaurus.mp3">
+        <img src="Edmontosaurus.webp" alt="Edmontosaurus">
+        <h4>Edmontosaurus</h4>
+        <p>Edmontosaurus was a duck-billed dinosaur that grazed on plants. It could grow up to 12 meters long and lived in herds for protection.</p>
+        <p class="fun-fact">🦴 Fun Fact: Herd behavior helped Edmontosaurus avoid predators!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Apatosaurus.mp3">
+        <img src="Apatosaurus.jpg" alt="Apatosaurus">
+        <h4>Apatosaurus</h4>
+        <p>Apatosaurus was a massive long-necked herbivore that could reach up to 22 meters in length, feeding on leaves high in trees.</p>
+        <p class="fun-fact">🦴 Fun Fact: Its tail could whip like a giant rope for defense!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Camarasaurus.mp3">
+        <img src="Camarasaurus.jpg" alt="Camarasaurus">
+        <h4>Camarasaurus</h4>
+        <p>Camarasaurus was a stout, long-necked herbivore that fed on conifers and other plants, growing up to 18 meters long.</p>
+        <p class="fun-fact">🦴 Fun Fact: Its strong jaws allowed it to chew tough vegetation!</p>
+      </div>
+
+      <div class="dino-card orange" data-sound="Archaeornithomimus.MP3">
+        <img src="Archaeornithomimus.jpg" alt="Archaeornithomimus">
+        <h4>Archaeornithomimus</h4>
+        <p>Archaeornithomimus was an omnivore dinosaur feeding on small animals, fruits, and insects. It was built for speed and agility.</p>
+        <p class="fun-fact">🦴 Fun Fact: Its long legs suggest it was an excellent runner!</p>
+      </div>
+
+      <div class="dino-card green" data-sound="Shunosaurus.MP3">
+        <img src="Shunosaurus.jpg" alt="Shunosaurus">
+        <h4>Shunosaurus</h4>
+        <p>Shunosaurus was a small, plant-eating dinosaur with a tail club for protection. It lived in what is now China.</p>
+        <p class="fun-fact">🦴 Fun Fact: Shunosaurus’ tail club could fend off predators despite its small size!</p>
+      </div>
+    </section>
+
+    <section id="facts" class="facts">
+      <h3>Did You Know?</h3>
+      <ul class="facts-list">
+        <li>🌱 Herbivorous dinosaurs often had specialized teeth for grinding plants.</li>
+        <li>🌍 They lived in diverse environments, from forests to plains.</li>
+        <li>⏳ Some used horns, spikes, or armor for protection against predators.</li>
+        <li>🦕 Many were among the largest creatures ever to walk the Earth.</li>
+      </ul>
+    </section>
+
+    <div style="text-align:center; margin-bottom:50px;">
+      <button onclick="new Audio('brachiosaurus.mp3').play()" style="padding:10px 20px; border:none; background:#50b8b4; color:white; border-radius:8px; cursor:pointer;">🔊 Test Sound</button>
+    </div>
+
+    <script>
+      const dinoCards = document.querySelectorAll('.dino-card');
+    let currentAudio = null;
+    dinoCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const soundSrc = card.getAttribute('data-sound');
+        if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+        currentAudio = new Audio(soundSrc);
+        currentAudio.play();
+      });
+    });
+    </script>
+  </main>
+</body>
+</html>

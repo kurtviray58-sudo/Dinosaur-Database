@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omnivorous Dinosaurs | Dinosaur Database</title>
+  <link rel="icon" href="https://imgs.search.brave.com/CYIFgN5CeKUtN0p9jlpKkO9ymhynCLL3xnlZNpmvZbU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9kaW5vc2F1/ci1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTg0NTgxNS5wbmc_/Zj13ZWJwJnc9MTI4" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b1d37;
+      --accent: #50b8b4;
+      --light: #f4f6f8;
+      --white: #ffffff;
+      --text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #111111;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    .sidebar h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--accent);
+      animation: glowText 2s infinite alternate;
+    }
+    .nav-links { display: flex; flex-direction: column; gap: 14px; }
+    .nav-links a {
+      color: #e5e7eb;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--accent); transform: translateX(5px); }
+    .sidebar footer { font-size: 0.85rem; color: #9ca3af; text-align: center; padding-top: 20px; }
+
+    /* MAIN */
+    main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* HERO */
+    .hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      height: 60vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+      animation: zoomBackground 20s ease-in-out infinite alternate;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 29, 55, 0.7);
+      backdrop-filter: blur(3px);
+    }
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInHero 1s forwards 0.3s;
+    }
+    .hero-content h2 { font-size: 3rem; margin-bottom: 10px; color: var(--accent); }
+    .hero-content p { font-size: 1.1rem; color: #d1d5db; }
+
+    /* CATEGORIES */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 60px 100px;
+      justify-items: center;
+    }
+    .dino-card {
+      width: 100%;
+      max-width: 320px;
+      background-color: #1f1f1f;
+      color: #f4f4f4;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+    .dino-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.6s ease;
+      filter: brightness(0.9);
+    }
+    .dino-card:hover { transform: scale(1.05) rotateX(2deg) rotateY(2deg); box-shadow: 0 15px 25px rgba(0,0,0,0.5); }
+    .dino-card:hover img { transform: scale(1.1); filter: brightness(1); }
+    .dino-card h4 { font-size: 1.3rem; color: #ffffff; margin: 15px 20px 10px; }
+    .dino-card p { color: #d1d1d1; font-size: 0.95rem; margin: 0 20px 10px; }
+    .fun-fact {
+      font-style: italic;
+      margin-top: auto;
+      background: rgba(42, 157, 143, 0.1);
+      padding: 10px 15px;
+      border-radius: 12px;
+      border-left: 4px solid #191779;
+      color: #191779;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+    .dino-card:hover .fun-fact { opacity: 1; transform: translateY(0); }
+
+    /* FACTS */
+    .facts {
+      background-color: #1f1f1f;
+      padding: 60px 20px;
+      text-align: center;
+      margin: 40px;
+      border-radius: 15px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.7s;
+    }
+    .facts h3 { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
+    .facts-list { max-width: 600px; margin: 0 auto; list-style: none; text-align: left; }
+    .facts-list li {
+      margin: 12px 0;
+      background-color: #2a2a2a;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #d1d1d1;
+      transition: transform 0.4s, background-color 0.3s, color 0.3s;
+    }
+    .facts-list li:hover { background-color: var(--accent); color: white; transform: translateX(6px) scale(1.05); }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInHero { to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoomBackground { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes glowText { 0% { text-shadow: 0 0 5px var(--accent); } 100% { text-shadow: 0 0 20px var(--accent); } }
+
+    /* ✅ MOBILE FIX */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+      }
+      .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .nav-links a { padding: 8px 12px; font-size: 0.9rem; }
+      main { margin-left: 0; }
+      .hero { height: 45vh; }
+      .hero-content h2 { font-size: 2rem; }
+      .hero-content p { font-size: 0.95rem; }
+      .categories { padding: 40px 20px; grid-template-columns: 1fr; }
+      .facts { margin: 20px; padding: 40px 20px; }
+    }
+  </style>
+</head>
+<body>sssssss
+  <aside class="sidebar">
+    <div>
+      <h1>🦖 DinoBase</h1>
+      <div class="nav-links">
+        <a href="index.html">🏠 Home</a>
+        <a href="food-chain.html">🍃 Food Chain</a>
+        <a href="Populardino.html">🔥 Popular Dinosaurs</a>
+        <a href="#facts">📘 Facts</a>
+      </div>
+    </div>
+    
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h2>🌿 Omnivorous Dinosaurs</h2>
+        <p>These dinosaurs thrived on both plants and meat, making them versatile survivors of the prehistoric world.</p>
+      </div>
+    </section>
+
+    <section class="categories">
+      <div class="dino-card orange" data-sound="Oviraptor.MP3" style="background-color: #000000;">
+    <img src="Oviraptor.webp" alt="Oviraptor">
+    <h4>Oviraptor</h4>
+    <p>Oviraptor was a small, bird-like dinosaur that ate both plants and small animals. It measured around 2 meters long.</p>
+    <p class="fun-fact">🦴 Fun Fact: Oviraptor was once thought to steal eggs, but it actually protected them!</p>
+    <audio class="hidden-audio">
+      <source src="Oviraptor.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Therizinosaurus.mp3" style="background-color: #000000;">
+    <img src="Therizinosaurus.jpg" alt="Therizinosaurus">
+    <h4>Therizinosaurus</h4>
+    <p>Therizinosaurus was a strange dinosaur with huge claws, feeding on plants and small animals. It could reach 10 meters in length.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its long claws may have been used to pull branches and catch small prey!</p>
+    <audio class="hidden-audio">
+      <source src="Therizinosaurus.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Troodon.mp3" style="background-color: #000000;">
+    <img src="Troodon.jpg" alt="Troodon">
+    <h4>Troodon</h4>
+    <p>Troodon was an intelligent omnivore that ate small animals, eggs, and plants. It measured around 2 meters long.</p>
+    <p class="fun-fact">🦴 Fun Fact: Troodon had one of the largest brain-to-body ratios among dinosaurs!</p>
+    <audio class="hidden-audio">
+      <source src="Troodon.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Gallimimus.mp3" style="background-color: #000000;">
+    <img src="Gallimimus.webp" alt="Gallimimus">
+    <h4>Gallimimus</h4>
+    <p>Gallimimus was a fast-running dinosaur that ate plants, insects, and small animals. It reached about 6 meters in length.</p>
+    <p class="fun-fact">🦴 Fun Fact: Gallimimus could run at speeds up to 60 km/h to escape predators!</p>
+    <audio class="hidden-audio">
+      <source src="Gallimimus.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Ornithomimus.MP3" style="background-color: #000000;">
+    <img src="Ornithomimus.webp" alt="Ornithomimus">
+    <h4>Ornithomimus</h4>
+    <p>Ornithomimus was a speedy omnivore that ate plants, fruits, and small animals. It could grow up to 4 meters long.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its long legs and lightweight body made it one of the fastest dinosaurs!</p>
+    <audio class="hidden-audio">
+      <source src="Ornithomimus.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Archaeornithomimus.MP3" style="background-color: #000000;">
+    <img src="Archaeornithomimus.jpg" alt="Archaeornithomimus">
+    <h4>Archaeornithomimus</h4>
+    <p>Archaeornithomimus was an omnivore dinosaur feeding on small animals, fruits, and insects. It was built for speed and agility.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its long legs suggest it was an excellent runner for catching prey or escaping predators!</p>
+    <audio class="hidden-audio">
+      <source src="Archaeornithomimus.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  
+  <div class="dino-card" data-sound="Beishanlong.mp3" style="background-color: #000000;">
+    <img src="Beishanlong.jpg" alt="Beishanlong">
+    <h4>Beishanlong</h4>
+    <p>Beishanlong was a large omnivore that fed on plants and small animals. It lived during the Early Cretaceous period in Asia.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its strong legs suggest it could cover long distances while searching for food!</p>
+    <audio class="hidden-audio">
+      <source src="Beishanlong.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  <div class="dino-card" data-sound="Fukuisaurus.MP3" style="background-color: #000000;">
+    <img src="Fukuisaurus.jpg" alt="Fukuisaurus">
+    <h4>Fukuisaurus</h4>
+    <p>A small omnivorous dinosaur from Japan eating plants and small prey.</p>
+    <p class="fun-fact">🦴 Fun Fact: Fukuisaurus lived in large herds for protection!</p>
+    <audio class="hidden-audio">
+      <source src="Fukuisaurus.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  <div class="dino-card" data-sound="Heterodontosaurus.MP3" style="background-color: #000000;">
+    <img src="Heterodontosaurus.webp" alt="Heterodontosaurus">
+    <h4>Heterodontosaurus</h4>
+    <p>Small omnivore eating plants and insects, with different teeth types for various diets.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its teeth allowed it to process both meat and plants!</p>
+    <audio class="hidden-audio">
+      <source src="Heterodontosaurus.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  <div class="dino-card" data-sound="Kulindadromeus.MP3" style="background-color: #000000;">
+    <img src="Kulindadromeus.jpg" alt="Kulindadromeus">
+    <h4>Kulindadromeus</h4>
+    <p>Small feathered omnivore from Siberia feeding on plants and insects.</p>
+    <p class="fun-fact">🦴 Fun Fact: Evidence shows it had proto-feathers!</p>
+      <audio class="hidden-audio">
+        <source src="Kulindadromeus.mp3" type="audio/mpeg">
+      </audio>
+  </div>
+
+    <div class="dino-card" data-sound="Orodromeus.MP3" style="background-color: #000000;">
+    <img src="Orodromeus.jpg" alt="Orodromeus">
+    <h4>Orodromeus</h4>
+    <p>Small omnivore feeding on plants, insects, and eggs; agile and fast.</p>
+    <p class="fun-fact">🦴 Fun Fact: Lived in burrows for safety!</p>
+      <audio class="hidden-audio">
+        <source src="Orodromeus.mp3" type="audio/mpeg">
+      </audio>
+  </div>
+
+    <div class="dino-card" data-sound="Jeholosaurus.mp3" style="background-color: #000000;">
+    <img src="Jeholosaurus.jpg" alt="Jeholosaurus">
+    <h4>Jeholosaurus</h4>
+    <p>Omnivorous dinosaur feeding on seeds, plants, and small invertebrates.</p>
+    <p class="fun-fact">🦴 Fun Fact: Its beak helped it crush seeds efficiently!</p>
+      <audio class="hidden-audio">
+        <source src="Jeholosaurus.mp3" type="audio/mpeg">
+      </audio>
+  </div>
+
+    </section>
+
+    <section id="facts" class="facts">
+      <h3>Did You Know?</h3>
+      <ul class="facts-list">
+        <li>🌿 Omnivorous dinosaurs could eat both plants and animals, giving them a survival advantage.</li>
+        <li>🦖 Some had sharp claws and teeth for hunting small prey.</li>
+        <li>🌍 They lived across diverse habitats worldwide.</li>
+        <li>⏳ Being omnivores made them adaptable to changing environments.</li>
+      </ul>
+    </section>
+
+    <script>
+      const dinoCards = document.querySelectorAll('.dino-card');
+      let currentAudio = null;
+
+      dinoCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const soundSrc = card.getAttribute('data-sound');
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+          }
+          currentAudio = new Audio(soundSrc);
+          currentAudio.play();
+        });
+      });
+
+      const factsSection = document.querySelector('.facts');
+      function revealFacts() {
+        const sectionTop = factsSection.getBoundingClientRect().top;
+        const triggerPoint = window.innerHeight - 100;
+        if (sectionTop < triggerPoint) {
+          factsSection.classList.add('visible');
+        }
+      }
+      window.addEventListener('scroll', revealFacts);
+      window.addEventListener('load', revealFacts);
+    </script>
+  </main>
+</body>
+</html>

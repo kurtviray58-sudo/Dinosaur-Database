@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Herbivorous Dinosaurs | Dinosaur Database</title>
+  <link rel="icon" href="https://imgs.search.brave.com/CYIFgN5CeKUtN0p9jlpKkO9ymhynCLL3xnlZNpmvZbU/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9kaW5vc2F1/ci1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTg0NTgxNS5wbmc_/Zj13ZWJwJnc9MTI4" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b1d37;
+      --accent: #50b8b4;
+      --light: #f4f6f8;
+      --white: #ffffff;
+      --text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #111111;
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+    .sidebar h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--accent);
+      animation: glowText 2s infinite alternate;
+    }
+    .nav-links { display: flex; flex-direction: column; gap: 14px; }
+    .nav-links a {
+      color: #e5e7eb;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      left: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a:hover { color: var(--accent); transform: translateX(5px); }
+    .sidebar footer { font-size: 0.85rem; color: #9ca3af; text-align: center; padding-top: 20px; }
+
+    /* MAIN */
+    main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* HERO */
+    .hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      height: 60vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+      animation: zoomBackground 20s ease-in-out infinite alternate;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(11, 29, 55, 0.7);
+      backdrop-filter: blur(3px);
+    }
+    .hero-content {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: slideInHero 1s forwards 0.3s;
+    }
+    .hero-content h2 { font-size: 3rem; margin-bottom: 10px; color: var(--accent); }
+    .hero-content p { font-size: 1.1rem; color: #d1d5db; }
+
+    /* CATEGORIES */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      padding: 60px 100px;
+      justify-items: center;
+    }
+    .dino-card {
+      width: 100%;
+      max-width: 320px;
+      background-color: #1f1f1f;
+      color: #f4f4f4;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+    .dino-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.6s ease;
+      filter: brightness(0.9);
+    }
+    .dino-card:hover { transform: scale(1.05) rotateX(2deg) rotateY(2deg); box-shadow: 0 15px 25px rgba(0,0,0,0.5); }
+    .dino-card:hover img { transform: scale(1.1); filter: brightness(1); }
+    .dino-card h4 { font-size: 1.3rem; color: #ffffff; margin: 15px 20px 10px; }
+    .dino-card p { color: #d1d1d1; font-size: 0.95rem; margin: 0 20px 10px; }
+    .fun-fact {
+      font-style: italic;
+      margin-top: auto;
+      background: rgba(42, 157, 143, 0.1);
+      padding: 10px 15px;
+      border-radius: 12px;
+      border-left: 4px solid #191779;
+      color: #191779;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+    .dino-card:hover .fun-fact { opacity: 1; transform: translateY(0); }
+
+    /* FACTS */
+    .facts {
+      background-color: #1f1f1f;
+      padding: 60px 20px;
+      text-align: center;
+      margin: 40px;
+      border-radius: 15px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.7s;
+    }
+    .facts h3 { font-size: 2rem; color: var(--accent); margin-bottom: 20px; }
+    .facts-list { max-width: 600px; margin: 0 auto; list-style: none; text-align: left; }
+    .facts-list li {
+      margin: 12px 0;
+      background-color: #2a2a2a;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #d1d1d1;
+      transition: transform 0.4s, background-color 0.3s, color 0.3s;
+    }
+    .facts-list li:hover { background-color: var(--accent); color: white; transform: translateX(6px) scale(1.05); }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInHero { to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoomBackground { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes glowText { 0% { text-shadow: 0 0 5px var(--accent); } 100% { text-shadow: 0 0 20px var(--accent); } }
+
+    /* ✅ MOBILE FIX */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+      }
+      .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      .nav-links a { padding: 8px 12px; font-size: 0.9rem; }
+      main { margin-left: 0; }
+      .hero { height: 45vh; }
+      .hero-content h2 { font-size: 2rem; }
+      .hero-content p { font-size: 0.95rem; }
+      .categories { padding: 40px 20px; grid-template-columns: 1fr; }
+      .facts { margin: 20px; padding: 40px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <h1>🦕 DinoBase</h1>
+      <div class="nav-links">
+        <a href="index.html">🏠 Home</a>
+        <a href="food-chain.html">🍃 Food Chain</a>
+        <a href="Populardino.html">🔥 Popular Dinosaurs</a>
+        <a href="#facts">📘 Facts</a>
+      </div>
+    </div>
+    
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h2>🦕 Herbivorous Dinosaurs</h2>
+        <p>Gentle giants that roamed the Earth eating plants. They had unique adaptations for survival, from long necks to armored bodies.</p>
+      </div>
+    </section>
+
+    <section class="categories">
+ 
+  <!-- Tyrannosaurus Rex -->
+<div class="dino-card" data-sound="TyrannosaurusRex.mp3">
+  <img src="https://imgs.search.brave.com/EW6S_YngKkoSaC_Lh1Y7s45ekeTnk_tQSs5BkE_xbFI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9wcmV2/aWV3LnJlZGQuaXQv/Y29taW5nLW91dC1v/Zi10aGUtbW92aWUt/aS1mZWVsLWxpa2Ut/dGhlLXQtcmV4LXNj/ZW5lLWhhZC12MC1p/bTllb21nbnFrYWYx/LmpwZWc_d2lkdGg9/NjQwJmNyb3A9c21h/cnQmYXV0bz13ZWJw/JnM9ZmFiOTliMzBh/ZGNlN2M2NDNjZjA1/MjNhOTU4MjMxZDA4/MTVkMDk2NA" alt="Tyrannosaurus Rex">
+  <div class="dino-card-content">
+    <h4>Tyrannosaurus Rex</h4>
+    <p>The king of carnivores with a powerful bite force.</p>
+    <p class="fun-fact">🦴 Fun Fact: Could run up to 20 km/h!</p>
+  </div>
+</div>
+
+<!-- Triceratops -->
+<div class="dino-card" data-sound="Triceratops.mp3">
+  <img src="https://imgs.search.brave.com/-4Ecm3RqBKplXVHLyDl5t9QEq0MOqGNHJXONYAMqbf4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTQ2/MzMzMTU2MC9waG90/by90cmljZXJhdG9w/cy1kaW5vc2F1ci1p/bi10aGUtZm9yZXN0/LmpwZz9zPTYxMng2/MTImdz0wJms9MjAm/Yz1lZDVTc0RTZFdq/VmJNSnVEaE1EN2h0/OGIzdUJrYTVRdDdM/WHgtN1ZYWU1vPQ" alt="Triceratops">
+  <div class="dino-card-content">
+    <h4>Triceratops</h4>
+    <p>Three-horned herbivore with a massive frill for defense.</p>
+    <p class="fun-fact">🦴 Fun Fact: Lived in herds for protection!</p>
+  </div>
+</div>
+
+<!-- Oviraptor -->
+<div class="dino-card" data-sound="Oviraptor.MP3">
+  <img src="https://imgs.search.brave.com/q2mUJaPrvSclLxVXMlY0ubevsx50YEckYREW-fSwi90/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTQw/MjI2NTQ0Ni92ZWN0/b3Ivb3ZpcmFwdG9y/LWRpbm9zYXVyLWls/bHVzdHJhdGlvbi5q/cGc_cz02MTJ4NjEy/Jnc9MCZrPTIwJmM9/ajVXVFppR2ZQWHkw/bUYtVi1SeGpnMGdV/aGxiUGljbXZtcE93/Zy1KWTd6Yz0" alt="Oviraptor">
+  <div class="dino-card-content">
+    <h4>Oviraptor</h4>
+    <p>Omnivore feeding on eggs and small prey.</p>
+    <p class="fun-fact">🦴 Fun Fact: Known as "egg thief" but might have been caring for eggs!</p>
+  </div>
+</div>
+
+<!-- Pteranodon -->
+<div class="dino-card" data-sound="Pteranodon.MP3">
+  <img src="https://imgs.search.brave.com/tqV1Q9OFO38HHMwwZkxlMYCMrIURDc2DtNG-RKpGrwQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzE1LzAzLzYyLzMy/LzM2MF9GXzE1MDM2/MjMyNjJfRFRySGNI/bEFGeEV5TnllOEtK/TGg1ckNxemdxZkZH/a2YuanBn" alt="Pteranodon">
+  <div class="dino-card-content">
+    <h4>Pteranodon</h4>
+    <p>Flying reptile soaring above prehistoric waters.</p>
+    <p class="fun-fact">🦴 Fun Fact: Wingspan could reach 7 meters!</p>
+  </div>
+</div>
+
+<!-- Mosasaurus -->
+<div class="dino-card" data-sound="Mosasaurus.MP3">
+  <img src="https://imgs.search.brave.com/ShjNCG-hRtaaPaN54N_xCQAeZUJ54YuP7aP_0m-09bw/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9wcmV2/aWV3LnJlZGQuaXQv/aXMtdGhlLW1vc2Fz/YXVydXMtd2Utc2Vl/LWluLXRoZS10cmFp/bGVycy10aGUtc2Ft/ZS1mcm9tLXRoZS12/MC1uYXM0eWYzY2Z1/M2YxLnBuZz93aWR0/aD02NDAmY3JvcD1z/bWFydCZhdXRvPXdl/YnAmcz1mNGRjNjNm/MjRkMWNkOGVhMWI4/NjZjZTQwM2I4MGYx/Zjg3ZjY0Yjg4" alt="Mosasaurus">
+  <div class="dino-card-content">
+    <h4>Mosasaurus</h4>
+    <p>Powerful aquatic predator ruling the Cretaceous seas.</p>
+    <p class="fun-fact">🦴 Fun Fact: Could grow up to 17 meters long!</p>
+  </div>
+</div>
+
+<!-- Indoraptor -->
+<div class="dino-card" data-sound="Indoraptor.MP3">
+  <img src="https://imgs.search.brave.com/dg25fmN-cAmZf0cPrDH8ZEb6nx4s0zLrjsqZzqHaTxc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9wcmV2/aWV3LnJlZGQuaXQv/dGhlLWluZG9yYXB0/b3ItaXMtdGhlLXNh/ZGRlc3QtaHlicmlk/LXYwLTFuNWR2Zzdu/b3F5ZDEuanBnP3dp/ZHRoPTY0MCZjcm9w/PXNtYXJ0JmF1dG89/d2VicCZzPTQ2YmJk/YzhmMjJlOWYzN2Mx/OWJlNTlmM2Y3YTc3/NTY4ZjYzNjY3ZjQ" alt="Indoraptor">
+  <div class="dino-card-content">
+    <h4>Indoraptor</h4>
+    <p>Fictional hybrid dinosaur, fast and intelligent predator.</p>
+    <p class="fun-fact">🦴 Fun Fact: Featured in Jurassic World films!</p>
+  </div>
+</div>
+
+<!-- Indominus Rex -->
+<div class="dino-card" data-sound="Indominus Rex.mp3">
+  <img src="https://imgs.search.brave.com/KwpUv9tGbe8d5mIYEkp5QnIXVaG337iyzqQB8x7AEsQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzc2LzIz/Lzg3Lzc2MjM4N2Yx/OTI1ZDA4ZTJlYmE5/MTMxNzJkN2Q3N2Rk/LmpwZw" alt="Indominus Rex">
+  <div class="dino-card-content">
+    <h4>Indominus Rex</h4>
+    <p>Massive hybrid dinosaur combining traits from several species.</p>
+    <p class="fun-fact">🦴 Fun Fact: Can camouflage using skin adaptation!</p>
+  </div>
+</div>
+
+<!-- Distortus Rex -->
+<div class="dino-card" data-sound="Distorus Rex.MP3">
+  <img src="https://imgs.search.brave.com/pfUbOvB04R2X1I7iDK6sDh05iYjaZBY9Kh23Nmlgnb4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/ZGV4ZXJ0by5jb20v/Y2RuLWltYWdlL3dw/LWNvbnRlbnQvdXBs/b2Fkcy8yMDI1LzA2/LzI3L0p1cmFzc2lj/LVdvcmxkLVJlYmly/dGgtRGlzdG9ydHVz/LVJleC5qcGc_d2lk/dGg9MTIwMCZxdWFs/aXR5PTYwJmZvcm1h/dD1hdXRv" alt="Distortus Rex">
+  <div class="dino-card-content">
+    <h4>Distortus Rex</h4>
+    <p>Powerful and fictional dinosaur with unique distorted features.</p>
+    <p class="fun-fact">🦴 Fun Fact: Imagined as one of the fiercest hybrids!</p>
+  </div>
+</div>
+
+<!-- Spinosaurus -->
+<div class="dino-card" data-sound="Spinosaurus.mp3">
+  <img src="https://imgs.search.brave.com/vzrxFuFKv-_16_tT29-z7fpdP4dRfKWpbUF0cUJWM5M/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMud2lraWEubm9j/b29raWUubmV0L21v/bnN0ZXJtb3ZpZXMv/aW1hZ2VzLzIvMjIv/U3Bpbm9zYXVydXNf/KEp1cmFzc2ljX1Bh/cmspLmpwZy9yZXZp/c2lvbi9sYXRlc3Qv/c2NhbGUtdG8td2lk/dGgtZG93bi8yNjg_/Y2I9MjAxNDEwMjcy/MzM1Mjg" alt="Spinosaurus">
+  <div class="dino-card-content">
+    <h4>Spinosaurus</h4>
+    <p>Large semi-aquatic predator with a distinctive sail on its back.</p>
+    <p class="fun-fact">🦴 Fun Fact: Could swim and hunt in rivers!</p>
+  </div>
+</div>
+
+<!-- Brachiosaurus -->
+<div class="dino-card" data-sound="Brachiosaurus.mp3">
+  <img src="https://imgs.search.brave.com/mrJFNc0QyQTH4sGSzhQWX9LvEmtCZjK3aFwXEu927-0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9vbmx5/ZGlub3NhdXJzLmNv/bS93cC1jb250ZW50/L3VwbG9hZHMvMjAy/MS8wOC9KdXJhc3Np/Yy1QYXJrLUJyYWNo/aW9zYXVydXMtYW5k/LUh1bWFucy5qcGc" alt="Brachiosaurus">
+  <div class="dino-card-content">
+    <h4>Brachiosaurus</h4>
+    <p>Massive long-necked herbivore that fed on tall trees.</p>
+    <p class="fun-fact">🦴 Fun Fact: Could reach heights up to 13 meters!</p>
+  </div>
+</div>
+
+</section>
+
+    <section id="facts" class="facts">
+      <h3>Did You Know?</h3>
+      <ul class="facts-list">
+        <li>🌱 Herbivorous dinosaurs often had specialized teeth for grinding plants.</li>
+        <li>🌍 They lived in diverse environments, from forests to plains.</li>
+        <li>⏳ Some used horns, spikes, or armor for protection against predators.</li>
+        <li>🦕 Many were among the largest creatures ever to walk the Earth.</li>
+      </ul>
+    </section>
+
+    <script>
+      const dinoCards = document.querySelectorAll('.dino-card');
+      let currentAudio = null;
+
+      dinoCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const soundSrc = card.getAttribute('data-sound');
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+          }
+          currentAudio = new Audio(soundSrc);
+          currentAudio.play();
+        });
+      });
+
+      const factsSection = document.querySelector('.facts');
+      function revealFacts() {
+        const sectionTop = factsSection.getBoundingClientRect().top;
+        const triggerPoint = window.innerHeight - 100;
+        if (sectionTop < triggerPoint) {
+          factsSection.classList.add('visible');
+        }
+      }
+
+      window.addEventListener('scroll', revealFacts);
+      window.addEventListener('load', revealFacts);
+    </script>
+  </main>
+</body>
+</html>
